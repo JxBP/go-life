@@ -1,7 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
+	"math/rand"
 	"time"
 
 	"github.com/JxBP/go-life/board"
@@ -9,19 +12,36 @@ import (
 )
 
 func main() {
-	b := board.New(50, 20)
-	b.Buf[1][3] = true
-	b.Buf[2][1] = true
-	b.Buf[2][3] = true
-	b.Buf[3][2] = true
-	b.Buf[3][3] = true
+	width := flag.Int("width", 40, "width of the board")
+	height := flag.Int("height", 40, "height of the board")
+	interval := flag.String("interval", "1s", "timeout between generations")
+	debug := flag.Bool("debug", false, "debug mode")
+	flag.Parse()
+
+	timeout, err := time.ParseDuration(*interval)
+	if err != nil {
+		log.Fatalf("err: bad interval: %v", err)
+	}
+
+	b := board.New(*width, *height)
+	for x := range b.Buf {
+		for y := range b.Buf[x] {
+			if rand.Intn(7) < 2 {
+				b.Buf[x][y] = true
+			}
+		}
+	}
 
 	g := game.WithBoard(b)
 
 	for {
 		fmt.Print("\033[2J\033[H")
-		fmt.Print(g.String())
+		if *debug {
+			fmt.Print(g.String())
+		} else {
+			fmt.Print(g.Display())
+		}
 		g.Step()
-		time.Sleep(time.Second * 1 / 10)
+		time.Sleep(timeout)
 	}
 }

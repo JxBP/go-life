@@ -67,3 +67,18 @@ func (g *Game) String() string {
 
 	return sb.String()
 }
+
+func (g *Game) Display() string {
+	var sb strings.Builder
+	for x := range g.curr.Buf {
+		for y := range g.curr.Buf[x] {
+			s := "   "
+			if g.curr.Buf[x][y] {
+				s = strings.Repeat("\u2588", 3)
+			}
+			sb.WriteString(s)
+		}
+		sb.WriteByte('\n')
+	}
+	return sb.String()
+}
